@@ -13,5 +13,5 @@ var createTaskHandler = function() {
 }
 
 //// ADDING AN **EVENT** THATS ADDS A NEW li TO THE LIST OF 'TASKS TO DO' ////
-// 0. Listen for -event- "click"; when "click(ed)" run function()
+// 0. Listen for -event- "click"; when "click(ed)" run the createTaskHandler function
 buttonEl.addEventListener("click", createTaskHandler);
