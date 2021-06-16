@@ -1,3 +1,5 @@
+var taskIdCounter = 0;
+
 var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
 
@@ -30,6 +32,9 @@ var createTaskEl = function(taskDataObj) {
     // 1.1.2. Style the new task Item
     listItemEl.className = "task-item";
 
+    // add task id as a custom attribute
+    listItemEl.setAttribute("data-task-id", taskIdCounter);
+
     // 2.1.1 Create a new div to hold task info and add list item
     var taskInfoEl = document.createElement("div");
     // 2.1.2 Style the new div
@@ -43,8 +48,63 @@ var createTaskEl = function(taskDataObj) {
     // // 1.2 Add the name of the task (replaced by 2.3)
     // listItemEl.textContent = taskNameInput;
 
+    var taskActionsEl = createTaskActions(taskIdCounter);
+    listItemEl.appendChild(taskActionsEl)
+
     // 1.3. Append listItemEl to the task list(now with appended taskInfoEl)
-    tasksToDoEl.appendChild(listItemEl);    
+    tasksToDoEl.appendChild(listItemEl);
+
+    // increase task counter for next unique id
+    taskIdCounter++;
+    // the first task is given an ID of 0, because thats what its set to by default
+        // when the first task gets added and given the 0 id, then this taskIdCounter++ adds 1 to the value of taskIdCounter so the next taskd added is given a new id
+
+}
+
+var createTaskActions = function(taskId) { 
+    var actionContainerEl = document.createElement("div");
+    actionContainerEl.className = "task-actions";
+
+    // create edit button
+    var editButtonEl = document.createElement("button");
+    editButtonEl.textContent = "Edit";
+    editButtonEl.className = "btn edit-btn";
+    editButtonEl.setAttribute("data-task-id", taskId);
+    // add edit button to div
+    actionContainerEl.appendChild(editButtonEl);
+
+    // create delete button
+    var deleteButtonEl = document.createElement("button");
+    deleteButtonEl.textContent = "Delete";
+    deleteButtonEl.className = "btn delete-btn";
+    deleteButtonEl.setAttribute("data-task-id", taskId);
+    // add delete button to div
+    actionContainerEl.appendChild(deleteButtonEl);
+
+
+    // task status dropdown box
+    var statusSelectEl = document.createElement("select");
+    statusSelectEl.className = "select-status";
+    statusSelectEl.setAttribute("name", "status-change");
+    statusSelectEl.setAttribute("data-task-id", taskId);
+
+    actionContainerEl.appendChild(statusSelectEl);
+
+    var statusChoices = ["To Do", "In Progress", "Completed"];
+    // for loop to add the indecies in statusChopices[] to the statusSelectEl dropdown <select>
+    for (var i = 0; i < statusChoices.length; i++) { 
+        // create option element
+        var statusOptionEl = document.createElement("option");
+        statusOptionEl.textContent = statusChoices[i];
+        statusOptionEl.setAttribute("value", statusChoices[i]);
+
+        // append to select
+        statusSelectEl.appendChild(statusOptionEl);
+    }
+
+
+
+    return actionContainerEl;
 }
 
 //// ADDING AN **EVENT** THATS ADDS A NEW li TO THE LIST OF 'TASKS TO DO' ////
