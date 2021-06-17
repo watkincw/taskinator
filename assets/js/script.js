@@ -1,31 +1,58 @@
 var taskIdCounter = 0;
 var pageContentEl = document.querySelector("#page-content");
-
 var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
+var tasksInProgressEl = document.querySelector("#tasks-in-progress");
+var tasksCompletedEl = document.querySelector("#tasks-completed");
 
 var taskFormHandler = function(event) { 
     event.preventDefault();
     var taskNameInput = document.querySelector("input[name='task-name']").value;
     var taskTypeInput = document.querySelector("select[name='task-type']").value;
-
+    
     // check if input calues are empty strings
     if (!taskNameInput || !taskTypeInput) { 
         alert("You need to fill out the fask form!");
         return false;
     }
-
+    
     formEl.reset();
+    
+    ////// when submiting new task, isEdit = false; when saving after editing a task, isEdit = true -- hasAttribute checks if the test has a taskId, if yes isEdit = true; if not, isEdit = false -- an new Task is not assigned a taskId until after the submit button is clicked
+    var isEdit = formEl.hasAttribute("data-task-id");
+    
+    //// has data attribute, so get task id and call function to complete edit process
+    if (isEdit) { 
+        var taskId = formEl.getAttribute("data-task-is");
+        completeEditTask(taskNameInput, taskTypeInput, taskId);
+    }
+    //// no data attribute, so create object as normal and pass to createTaskEl function
+    else { 
+        // package up data as an object
+        var taskDataObj = { 
+            name: taskNameInput,
+            type: taskTypeInput
+        };        
+        // send it as an argument to creatTaskEl
+        createTaskEl(taskDataObj);
+    }    
+};
 
-    // package up data as an object
-    var taskDataObj = { 
-        name: taskNameInput,
-        type: taskTypeInput
-    };
+// edit task without permanently changing the button text and being able to add more new tasks after editing an existing task
+var completeEditTask = function(taskName, taskType, taskId) { 
+    // find the matching task list item
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
 
-    // send it as an argument to creatTaskEl
-    createTaskEl(taskDataObj);
-}
+    // set new values
+    taskSelected.querySelector("h3.task-name").textContent = taskName;
+    taskSelected.querySelector("span.task-type").textContent = taskType;
+
+    alert("Task Updated!");
+
+    // reset the form and change the button text back to 'Add Task' from 'Save Task'
+    formEl.removeAttribute("data-task-id");
+    document.querySelector("#save-task").textContent = "Add Task";
+};
 
 var createTaskEl = function(taskDataObj) { 
     // 1.1.1. Create a new task item
@@ -102,26 +129,21 @@ var createTaskActions = function(taskId) {
         // append to select
         statusSelectEl.appendChild(statusOptionEl);
     }
-
-
     return actionContainerEl;
 }
 
-//// ADDING AN **EVENT('submit' event)** THATS ADDS A NEW li TO THE LIST OF 'TASKS TO DO' ////
-// 1.0. Listen/Wait for -event- "submit"; when "submit(ed)" run taskFormHandler()
-formEl.addEventListener("submit", taskFormHandler);
 
 // function that targets an element when a delete/edit button is clicked, preparing it for deletion/editing 
 var taskButtonHandler = function(event) { 
     // get tartget element from event
     var targetEl = event.target;
-
+    
     // edit button was clicked
     if (targetEl.matches(".edit-btn")) { 
         var taskId = targetEl.getAttribute("data-task-id");
         editTask(taskId);
     }
-
+    
     // delete button was clicked
     else if (targetEl.matches(".delete-btn")) { 
         // get the element's task id
@@ -133,12 +155,12 @@ var taskButtonHandler = function(event) {
 var editTask = function (taskId) { 
     // get task list item element
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
-
+    
     // get content from task name and type
     var taskName = taskSelected.querySelector("h3.task-name").textContent;
-
+    
     var taskType = taskSelected.querySelector("span.task-type").textContent;
-
+    
     document.querySelector("input[name='task-name']").value = taskName;
     document.querySelector("select[name='task-type']").value = taskType;
     document.querySelector("#save-task").textContent = "Save Task";
@@ -149,5 +171,37 @@ var deleteTask = function(taskId) {
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
     taskSelected.remove();
 };
-// Listen/Wait for -event- "click"; when "click(ed)" run taskButtonHandler()
+
+// changed the column the task is in based on if the user says its To Do, In Progress, or Completed
+var taskStatusChangeHandler = function(event) { 
+    // console.log(event.target);
+    // console.log(event.target.getAttribute("data-task-id"));
+    // get the task item's id
+    var taskId = event.target.getAttribute("data-task-id");
+
+    // get the currently selected options' value and convert to lowercase
+    var statusValue = event.target.value.toLowerCase;
+
+    // find the parent task item element based on the id
+    var taskSelected = document.querySelector(".task-item[data-task-it='" + taskId + "']");
+
+    if (statusValue === "to do") { 
+        tasksToDoEl.appendChild(taskSelected);
+    }
+    else if (statusValue === "in progress") { 
+        tasksInProgressEl.appendChild(taskSelected);
+    }
+    else if (statusValue === "completed") { 
+        tasksCompletedEl.appandChild(taskSelected);
+    }
+};
+
+//// ADDING AN **EVENT('submit' event)** THATS ADDS A NEW li TO THE LIST OF 'TASKS TO DO' ////
+// 1.0. Listen/Wait for -event- "submit"; when "submit(ed)" run taskFormHandler()
+formEl.addEventListener("submit", taskFormHandler);
+
+// Listens/Wait for -event- "click"; when "click(ed)" run taskButtonHandler()
 pageContentEl.addEventListener("click", taskButtonHandler);
+
+// Listens/Waits for -event- "change"; when "change(d)" run taskStatusChangeHandler() -- dictates which column the task in question falls under
+pageContentEl.addEventListener("change", taskStatusChangeHandler);
