@@ -180,10 +180,10 @@ var taskStatusChangeHandler = function(event) {
     var taskId = event.target.getAttribute("data-task-id");
 
     // get the currently selected options' value and convert to lowercase
-    var statusValue = event.target.value.toLowerCase;
+    var statusValue = event.target.value.toLowerCase();
 
     // find the parent task item element based on the id
-    var taskSelected = document.querySelector(".task-item[data-task-it='" + taskId + "']");
+    var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
 
     if (statusValue === "to do") { 
         tasksToDoEl.appendChild(taskSelected);
@@ -192,7 +192,7 @@ var taskStatusChangeHandler = function(event) {
         tasksInProgressEl.appendChild(taskSelected);
     }
     else if (statusValue === "completed") { 
-        tasksCompletedEl.appandChild(taskSelected);
+        tasksCompletedEl.appendChild(taskSelected);
     }
 };
 
