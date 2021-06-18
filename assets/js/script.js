@@ -1,9 +1,12 @@
-var taskIdCounter = 0;
-var pageContentEl = document.querySelector("#page-content");
+  var taskIdCounter = 0;
+
 var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
 var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
+var pageContentEl = document.querySelector("#page-content");
+
+// creat array to hold tasks for saving
 var tasks = [];
 
 var taskFormHandler = function(event) { 
@@ -241,9 +244,31 @@ var taskStatusChangeHandler = function(event) {
 // function to save tasks to localStorage so they are not deleted everytime the user closes/refreshes the page
 var saveTasks = function() { 
     localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+};
 
-//// ADDING AN **EVENT('submit' event)** THATS ADDS A NEW li TO THE LIST OF 'TASKS TO DO' ////
+// function that loads tasks onto the screen from localStorage eveytime you reload the page from the device that you created them on
+var loadTasks = function() { 
+    // Gets task items from localStorage
+    var savedTasks = localStorage.getItem("tasks");
+    
+    // Check if [tasks] is equal to and empty array by using and if statment
+    if (!savedTasks) { 
+        // if there are no tasks, set tasks to an empty array and return out of the function
+        return false;
+        // if its not 'null', we dont ahve to worry about it and we can skip the if statment's code block(dont need and else statment)
+    }
+    console.log("Saved tasks found!");
+    // else, load up saved tasks
+
+    // parse into array of objects
+    savedTasks = JSON.parse(savedTasks);
+    // loop through [savedTasks]
+    for (var i = 0; i < savedTasks.length; i++) { 
+        // pass each task object into the `createTaskEl()` function
+        createTaskEl(savedTasks[i]);
+    }
+};
+
 // 1.0. Listen/Wait for -event- "submit"; when "submit(ed)" run taskFormHandler()
 formEl.addEventListener("submit", taskFormHandler);
 
@@ -252,3 +277,5 @@ pageContentEl.addEventListener("click", taskButtonHandler);
 
 // Listens/Waits for -event- "change"; when "change(d)" run taskStatusChangeHandler() -- dictates which column the task in question falls under
 pageContentEl.addEventListener("change", taskStatusChangeHandler);
+
+loadTasks();
