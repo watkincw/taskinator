@@ -4,6 +4,7 @@ var formEl = document.querySelector("#task-form");
 var tasksToDoEl = document.querySelector("#tasks-to-do");
 var tasksInProgressEl = document.querySelector("#tasks-in-progress");
 var tasksCompletedEl = document.querySelector("#tasks-completed");
+var tasks = [];
 
 var taskFormHandler = function(event) { 
     event.preventDefault();
@@ -31,7 +32,8 @@ var taskFormHandler = function(event) {
         // package up data as an object
         var taskDataObj = { 
             name: taskNameInput,
-            type: taskTypeInput
+            type: taskTypeInput,
+            status: "to do"
         };        
         // send it as an argument to creatTaskEl
         createTaskEl(taskDataObj);
@@ -46,6 +48,14 @@ var completeEditTask = function(taskName, taskType, taskId) {
     // set new values
     taskSelected.querySelector("h3.task-name").textContent = taskName;
     taskSelected.querySelector("span.task-type").textContent = taskType;
+
+    // loop through [tasks] and task objects with new content
+    for (var i = 0; i < tasks.length; i++) { 
+        if (tasks[i].id === parseInt(taskId)) { 
+            tasks[i].name = taskName;
+            tasks[i].type = taskType;
+        }
+    }
 
     alert("Task Updated!");
 
@@ -82,11 +92,18 @@ var createTaskEl = function(taskDataObj) {
     // 1.3. Append listItemEl to the task list(now with appended taskInfoEl)
     tasksToDoEl.appendChild(listItemEl);
 
+    // add the Id of the task to the tasks array
+    taskDataObj.id = taskIdCounter;
+    tasks.push(taskDataObj);
+
     // increase task counter for next unique id
     taskIdCounter++;
     // the first task is given an ID of 0, because thats what its set to by default
         // when the first task gets added and given the 0 id, then this taskIdCounter++ adds 1 to the value of taskIdCounter so the next taskd added is given a new id
+    
 
+    console.log(taskDataObj);
+    console.log(taskDataObj.status);
 }
 
 var createTaskActions = function(taskId) { 
@@ -170,6 +187,19 @@ var editTask = function (taskId) {
 var deleteTask = function(taskId) { 
     var taskSelected = document.querySelector(".task-item[data-task-id='" + taskId + "']");
     taskSelected.remove();
+
+    // create new array for hold updated list of tasks
+    var updatedTaskArr = [];
+
+    // loop throug current tasks
+    for (var i = 0; i < tasks.length; i++) { 
+        // if tasks[i].id doesn't match the value of tasksIf, let's keep that task and push it into the new array
+        if (tasks[i].id !== parseInt(taskId)) { 
+            updatedTaskArr.push(tasks[i]);
+        }
+    }
+    // re-assign [tasks] to be the same as updatedTaskArr
+    tasks = updatedTaskArr;
 };
 
 // changed the column the task is in based on if the user says its To Do, In Progress, or Completed
@@ -194,6 +224,13 @@ var taskStatusChangeHandler = function(event) {
     else if (statusValue === "completed") { 
         tasksCompletedEl.appendChild(taskSelected);
     }
+    // update task's in tasks array
+    for (var i = 0; i < tasks.length; i++) { 
+        if (tasks[i].id === parseInt(taskId)) { 
+            tasks[i].status = statusValue;
+        }
+    }
+    console.log(tasks);
 };
 
 //// ADDING AN **EVENT('submit' event)** THATS ADDS A NEW li TO THE LIST OF 'TASKS TO DO' ////
