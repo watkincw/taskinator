@@ -62,6 +62,9 @@ var completeEditTask = function(taskName, taskType, taskId) {
     // reset the form and change the button text back to 'Add Task' from 'Save Task'
     formEl.removeAttribute("data-task-id");
     document.querySelector("#save-task").textContent = "Add Task";
+
+    // save tasks to local storage
+    saveTasks();
 };
 
 var createTaskEl = function(taskDataObj) { 
@@ -100,10 +103,9 @@ var createTaskEl = function(taskDataObj) {
     taskIdCounter++;
     // the first task is given an ID of 0, because thats what its set to by default
         // when the first task gets added and given the 0 id, then this taskIdCounter++ adds 1 to the value of taskIdCounter so the next taskd added is given a new id
-    
 
-    console.log(taskDataObj);
-    console.log(taskDataObj.status);
+    // save tasks to local storage
+    saveTasks();
 }
 
 var createTaskActions = function(taskId) { 
@@ -200,12 +202,13 @@ var deleteTask = function(taskId) {
     }
     // re-assign [tasks] to be the same as updatedTaskArr
     tasks = updatedTaskArr;
+
+    // save tasks to local storage
+    saveTasks();
 };
 
 // changed the column the task is in based on if the user says its To Do, In Progress, or Completed
 var taskStatusChangeHandler = function(event) { 
-    // console.log(event.target);
-    // console.log(event.target.getAttribute("data-task-id"));
     // get the task item's id
     var taskId = event.target.getAttribute("data-task-id");
 
@@ -230,8 +233,15 @@ var taskStatusChangeHandler = function(event) {
             tasks[i].status = statusValue;
         }
     }
-    console.log(tasks);
+    
+    // save tasks to local storage
+    saveTasks();
 };
+
+// function to save tasks to localStorage so they are not deleted everytime the user closes/refreshes the page
+var saveTasks = function() { 
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
 //// ADDING AN **EVENT('submit' event)** THATS ADDS A NEW li TO THE LIST OF 'TASKS TO DO' ////
 // 1.0. Listen/Wait for -event- "submit"; when "submit(ed)" run taskFormHandler()
